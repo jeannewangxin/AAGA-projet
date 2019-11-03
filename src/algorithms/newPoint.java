@@ -154,7 +154,7 @@ public class newPoint {
 		while (!isValideIS(pointsIn, solu, edgeThreshold)) {
 			long chose = System.nanoTime();
 			for (Point p : solu) {
-				if (chose % 2 == 0) {// 选择p,删除所有的邻居
+				if (chose % 2 == 0) {// 閫夋嫨p,鍒犻櫎鎵�鏈夌殑閭诲眳
 					solu.removeAll(getNeighbors(p, pointsIn, edgeThreshold));
 				} else {
 					solu.remove(p);
@@ -172,7 +172,7 @@ public class newPoint {
 
 		for (Point p : solution) {
 			ArrayList<Point> nei = getNeighbors(p, pointsIn, edgeThreshold);
-			newsol.remove(p);// 增加邻居试试
+			newsol.remove(p);// 澧炲姞閭诲眳璇曡瘯
 			boolean add = true;
 			for (Point neib : nei) {
 				for (Point s : newsol) {
@@ -200,7 +200,7 @@ public class newPoint {
 //		while (!isValideIS(pointsIn, solu, edgeThreshold)) {
 //			long chose = System.nanoTime();
 //			for(Point p:solu) {
-//				if(chose%2 ==0) {//选择p,删除所有的邻居
+//				if(chose%2 ==0) {//閫夋嫨p,鍒犻櫎鎵�鏈夌殑閭诲眳
 //					solu.removeAll(getNeighbors(p,pointsIn,edgeThreshold));
 //				}
 //				else {
@@ -242,10 +242,10 @@ public class newPoint {
 		ArrayList<Point> neibors = new ArrayList<Point>();
 		ArrayList<Point> result = new ArrayList<Point>();
 		for (Point p : solu) {
-			// 取所有solu的邻居
+			// 鍙栨墍鏈塻olu鐨勯偦灞�
 			neibors.addAll(getNeighbors(p, pointsIn, edgeThreshold));
 			ArrayList<Point> neneibors = new ArrayList<Point>();
-			// 取所有solu邻居的邻居
+			// 鍙栨墍鏈塻olu閭诲眳鐨勯偦灞�
 			for (Point n : neibors) {
 				neneibors.addAll(getNeighbors(n, pointsIn, edgeThreshold));
 				ArrayList<Point> res = getNeiborsInconnected(neneibors, edgeThreshold);
@@ -303,6 +303,28 @@ public class newPoint {
 		}
 		return solu;
 	}
+	
+	private ArrayList<Point> order(ArrayList<Point> pointsIn, int edgeThreshold) {
+		long seed = System.nanoTime();
+		Collections.shuffle(pointsIn, new Random(seed));
+		ArrayList<Point> solu = new ArrayList<Point>();
+		for(Point p:pointsIn) {
+			if(isSolide(p,solu,edgeThreshold)) {
+				solu.add(p);
+			}
+		}
+		return solu;
+	}
+	
+	private boolean isSolide(Point point,ArrayList<Point> pointsIn, int edgeThreshold) {
+		for(Point p:pointsIn) {
+			if(p.distance(point)<=edgeThreshold) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 
 	public ArrayList<Point> getMiniDegreePoint(ArrayList<Point> pointsIn, int edgeThreshold) {
 		int mini = 10000;
@@ -325,35 +347,43 @@ public class newPoint {
 		ArrayList<Point> points = defaultTeam.readFromFile("./input.points");
 		System.out.println("pointsBlanc size : " + points.size());
 
-		ArrayList<Point> DS = defaultTeam.greedy(points, 100);
-		System.out.println("getMIS isValideMIS : " + defaultTeam.isValideIS(points, DS, 100));
-		System.out.println("getMIS isDominant : " + defaultTeam.isDominant(points, DS, 100));
-		System.out.println("getMIS MIS size : " + DS.size());
+//		ArrayList<Point> DS = defaultTeam.greedy(points, 100);
+//		System.out.println("getMIS isValideMIS : " + defaultTeam.isValideIS(points, DS, 100));
+//		System.out.println("getMIS isDominant : " + defaultTeam.isDominant(points, DS, 100));
+//		System.out.println("getMIS MIS size : " + DS.size());
+//
+//		ArrayList<Point> addDS = defaultTeam.greedy(points, 100);
+//		int i = 0;
+//		while (i < 10) {
+//			addDS = defaultTeam.changeOneMIS(addDS, points, 100);
+//			i++;
+//		}
+//
+//		System.out.println("addDS isValideMIS : " + defaultTeam.isValideIS(points, addDS, 100));
+//		System.out.println("addDS isDominant : " + defaultTeam.isDominant(points, addDS, 100));
+//		System.out.println("addDS MIS size : " + addDS.size());
+//
+//		for(Point p:points) {
+//			ArrayList<Point> getMIS2;
+//			ArrayList<Point> newgetMIS2;
+//			do {
+//				getMIS2 = defaultTeam.getMIS2(p,points, 100);
+//				newgetMIS2 = (ArrayList<Point>)getMIS2.clone();
+//			}while(newgetMIS2.size()>getMIS2.size());
+//		}
 
-		ArrayList<Point> addDS = defaultTeam.greedy(points, 100);
-		int i = 0;
-		while (i < 10) {
-			addDS = defaultTeam.changeOneMIS(addDS, points, 100);
+		ArrayList<Point> order = new ArrayList<Point>();
+		ArrayList<Point> neworder = (ArrayList<Point>)order.clone();
+		int i = 1;
+		do {
+			order = (ArrayList<Point>) neworder.clone();
+			neworder = defaultTeam.order(points, 100);
 			i++;
-		}
-
-		System.out.println("addDS isValideMIS : " + defaultTeam.isValideIS(points, addDS, 100));
-		System.out.println("addDS isDominant : " + defaultTeam.isDominant(points, addDS, 100));
-		System.out.println("addDS MIS size : " + addDS.size());
-
-		for(Point p:points) {
-			ArrayList<Point> getMIS2;
-			ArrayList<Point> newgetMIS2;
-			do {
-				getMIS2 = defaultTeam.getMIS2(p,points, 100);
-				newgetMIS2 = (ArrayList<Point>)getMIS2.clone();
-			}while(newgetMIS2.size()>getMIS2.size());
-		}
-
+		}while(neworder.size()>order.size() && i <10000);
 		
-		System.out.println("getMIS2 isValideMIS : " + defaultTeam.isValideIS(points, getMIS2, 100));
-		System.out.println("getMIS2 isDominant : " + defaultTeam.isDominant(points, getMIS2, 100));
-		System.out.println("getMIS2 MIS size : " + getMIS2.size());
+		System.out.println("order isValideMIS : " + defaultTeam.isValideIS(points, order, 100));
+		System.out.println("order isDominant : " + defaultTeam.isDominant(points, order, 100));
+		System.out.println("order MIS size : " + order.size());
 	}
 
 }
